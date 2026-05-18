@@ -7,9 +7,11 @@ import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +30,29 @@ public class UserController {
     @Operation(summary = "List all users")
     public List<UserResponse> listUsers() {
         return userService.findAll();
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search users by username, email, first or last name")
+    public List<UserResponse> searchUsers(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName
+    ) {
+        return userService.search(username, email, firstName, lastName);
+    }
+
+    @GetMapping("/by-username/{username}")
+    @Operation(summary = "Find user by username")
+    public UserResponse getUserByUsername(@PathVariable String username) {
+        return userService.findByUsername(username);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Find user by id")
+    public UserResponse getUserById(@PathVariable long id) {
+        return userService.findById(id);
     }
 
     @PostMapping
