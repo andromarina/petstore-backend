@@ -5,6 +5,7 @@ import com.petstore.backend.repository.OrderRepository;
 import com.petstore.backend.repository.OrderSpecifications;
 import com.petstore.backend.web.CreateOrderRequest;
 import com.petstore.backend.web.OrderResponse;
+import com.petstore.backend.web.UpdateOrderRequest;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -56,5 +57,25 @@ public class OrderService {
         order.setComplete(request.complete());
         Order saved = orderRepository.save(order);
         return OrderResponse.fromEntity(saved);
+    }
+
+    @Transactional
+    public OrderResponse update(long id, UpdateOrderRequest request) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+        order.setPetId(request.petId());
+        order.setQuantity(request.quantity());
+        order.setShipDate(request.shipDate());
+        order.setStatus(request.status());
+        order.setComplete(request.complete());
+        Order saved = orderRepository.save(order);
+        return OrderResponse.fromEntity(saved);
+    }
+
+    @Transactional
+    public void delete(long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+        orderRepository.delete(order);
     }
 }

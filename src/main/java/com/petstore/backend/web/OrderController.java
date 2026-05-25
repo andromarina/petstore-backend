@@ -6,9 +6,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,5 +55,18 @@ public class OrderController {
     @Operation(summary = "Place a new order")
     public OrderResponse createOrder(@Valid @RequestBody CreateOrderRequest request) {
         return orderService.create(request);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update an existing order")
+    public OrderResponse updateOrder(@PathVariable long id, @Valid @RequestBody UpdateOrderRequest request) {
+        return orderService.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete an order")
+    public void deleteOrder(@PathVariable long id) {
+        orderService.delete(id);
     }
 }
