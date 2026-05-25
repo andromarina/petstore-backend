@@ -4,6 +4,7 @@ import com.petstore.backend.domain.User;
 import com.petstore.backend.repository.UserRepository;
 import com.petstore.backend.repository.UserSpecifications;
 import com.petstore.backend.web.CreateUserRequest;
+import com.petstore.backend.web.UpdateUserRequest;
 import com.petstore.backend.web.UserResponse;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -67,6 +68,33 @@ public class UserService {
         user.setLastName(request.lastName());
         user.setEmail(request.email());
         user.setPassword(request.password());
+        user.setPhone(request.phone());
+        user.setUserStatus(request.userStatus());
+        User saved = userRepository.save(user);
+        return UserResponse.fromEntity(saved);
+    }
+
+    @Transactional
+    public void delete(long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        userRepository.delete(user);
+    }
+
+    @Transactional
+    public UserResponse update(long id, UpdateUserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if (userRepository.existsByUsernameAndIdNot(request.username(), id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
+        }
+        user.setUsername(request.username());
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setEmail(request.email());
+        if (!request.password().isBlank()) {
+            user.setPassword(request.password());
+        }
         user.setPhone(request.phone());
         user.setUserStatus(request.userStatus());
         User saved = userRepository.save(user);
