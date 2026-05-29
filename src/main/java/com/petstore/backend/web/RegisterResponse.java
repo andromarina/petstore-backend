@@ -1,29 +1,26 @@
 package com.petstore.backend.web;
 
-import com.petstore.backend.domain.Role;
 import com.petstore.backend.domain.User;
 
-public record UserResponse(
+public record RegisterResponse(
         long id,
         String username,
         String firstName,
         String lastName,
         String email,
         String phone,
-        int userStatus,
-        Role role
+        int userStatus
 ) {
 
-    public static UserResponse fromEntity(User user) {
-        return new UserResponse(
+    public static RegisterResponse fromEntity(User user) {
+        return new RegisterResponse(
                 user.getId(),
                 user.getUsername(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
                 user.getPhone() != null ? user.getPhone() : "",
-                user.getUserStatus(),
-                user.getRole()
+                user.getUserStatus()
         );
     }
 }

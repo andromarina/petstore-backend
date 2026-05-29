@@ -23,3 +23,11 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+petstore:
+  jwt:
+    secret: change-me-in-production-use-at-least-32-characters-long-secret
+    expiration-ms: 86400000
+  admin:
+    username: admin
+    password: admin123

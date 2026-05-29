@@ -1,13 +1,17 @@
 package com.petstore.backend.service;
 
+import com.petstore.backend.domain.Role;
 import com.petstore.backend.domain.User;
 import com.petstore.backend.repository.UserRepository;
 import com.petstore.backend.repository.UserSpecifications;
 import com.petstore.backend.web.CreateUserRequest;
+import com.petstore.backend.web.RegisterRequest;
+import com.petstore.backend.web.RegisterResponse;
 import com.petstore.backend.web.UpdateUserRequest;
 import com.petstore.backend.web.UserResponse;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,10 +19,14 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+    private static final int DEFAULT_REGISTERED_USER_STATUS = 1;
 
-    public UserService(UserRepository userRepository) {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
@@ -58,6 +66,24 @@ public class UserService {
     }
 
     @Transactional
+    public RegisterResponse register(RegisterRequest request) {
+        if (userRepository.existsByUsername(request.username())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
+        }
+        User user = new User();
+        user.setUsername(request.username());
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setPhone(request.phone());
+        user.setUserStatus(DEFAULT_REGISTERED_USER_STATUS);
+        user.setRole(Role.USER);
+        User saved = userRepository.save(user);
+        return RegisterResponse.fromEntity(saved);
+    }
+
+    @Transactional
     public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByUsername(request.username())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
@@ -67,9 +93,10 @@ public class UserService {
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setEmail(request.email());
-        user.setPassword(request.password());
+        user.setPassword(passwordEncoder.encode(request.password()));
         user.setPhone(request.phone());
         user.setUserStatus(request.userStatus());
+        user.setRole(request.role() != null ? request.role() : Role.USER);
         User saved = userRepository.save(user);
         return UserResponse.fromEntity(saved);
     }
@@ -93,10 +120,13 @@ public class UserService {
         user.setLastName(request.lastName());
         user.setEmail(request.email());
         if (!request.password().isBlank()) {
-            user.setPassword(request.password());
+            user.setPassword(passwordEncoder.encode(request.password()));
         }
         user.setPhone(request.phone());
         user.setUserStatus(request.userStatus());
+        if (request.role() != null) {
+            user.setRole(request.role());
+        }
         User saved = userRepository.save(user);
         return UserResponse.fromEntity(saved);
     }

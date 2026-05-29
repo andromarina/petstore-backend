@@ -1,5 +1,6 @@
 package com.petstore.backend.web;
 
+import com.petstore.backend.domain.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +13,8 @@ public record UpdateUserRequest(
         @NotBlank @Email @Size(max = 255) String email,
         @Size(max = 255) String password,
         @Size(max = 64) String phone,
-        @NotNull Integer userStatus
+        @NotNull Integer userStatus,
+        Role role
 ) {
 
     public UpdateUserRequest {
